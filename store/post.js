@@ -1,53 +1,44 @@
-const posts = [
-  {
-    title: 'Post title',
-    date: new Date(),
-    views: 22,
-    comments: [1, 2],
-    _id: '23'
-  },
-  {
-    title: 'Post title',
-    date: new Date(),
-    views: 1,
-    comments: [1, 22],
-    _id: '253'
-  }
-]
-
 export const actions = {
-  async fetchAdmin() {
-    return await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(posts)
-      }, 10)
-    })
-  },
-  async remove(id) {},
-  async update({ ctx }, { id, text }) {},
-  async create({ commit }, { title, text, image }) {
+  async fetchAdmin({ commit }) {
     try {
-      const formData = new FormData()
-
-      formData.append('title', title)
-      formData.append('text', text)
-      formData.append('image', image, image.name)
-
-      return await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve()
-        }, 10)
-      })
+      return await this.$axios.$get('/api/post/admin')
     } catch (error) {
       commit('setError', error, { root: true })
-      throw error
     }
   },
-  async fetchAdminById({ ctx }, id) {
-    return await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(posts.find((post) => post._id === id))
-      }, 10)
-    })
+  async remove({ commit }, id) {
+    try {
+      return await this.$axios.$delete(`/api/post/admin/${id}`)
+    } catch (error) {
+      commit('setError', error, { root: true })
+    }
+  },
+  async update({ commit }, { id, text }) {
+    try {
+      return await this.$axios.$put(`/api/post/admin/${id}`, { text })
+    } catch (error) {
+      commit('setError', error, { root: true })
+    }
+  },
+  async create({ commit }, { title, text, image }) {
+    try {
+      const fd = new FormData()
+
+      fd.append('title', title)
+      fd.append('text', text)
+      fd.append('image', image, image.name)
+
+      return await this.$axios.$post('/api/post/admin', fd)
+    } catch (e) {
+      commit('setError', e, { root: true })
+      throw e
+    }
+  },
+  async fetchAdminById({ commit }, id) {
+    try {
+      return await this.$axios.$get(`/api/post/admin/${id}`)
+    } catch (error) {
+      commit('setError', error, { root: true })
+    }
   }
 }
