@@ -1,19 +1,20 @@
 <template>
   <el-card shadow="hover" :body-style="{ padding: 0 }" class="post">
     <header slot="header" class="post-header">
-      <h3>Post title</h3>
+      <h3>{{ post.title }}</h3>
       <small
-        ><i class="el-icon-time"></i>{{ new Date().toLocaleString() }}</small
+        ><i class="el-icon-time"></i
+        >{{ new Date(post.date).toLocaleString() }}</small
       >
     </header>
     <div class="post-body">
-      <img src="" alt="" class="post-img" />
+      <img :src="post.imageUrl" alt="" class="post-img" />
     </div>
     <footer class="post-footer">
-      <el-link type="primary" href="#" @click="openPost()">Открыть</el-link>
+      <el-button round @click="openPost">Открыть</el-button>
       <span>
         <i class="el-icon-s-comment"></i>
-        13
+        {{ post.comments.length }}
       </span>
     </footer>
   </el-card>
@@ -21,9 +22,16 @@
 
 <script>
 export default {
+  props: {
+    post: {
+      type: Object,
+      required: true
+    }
+  },
   methods: {
     openPost() {
-      this.$router.push(`/post/${this.post.id}`)
+      const id = this.post._id
+      this.$router.push(`/post/${id}`)
     }
   }
 }
@@ -31,7 +39,6 @@ export default {
 
 <style scoped>
 .post {
-  height: 200px;
   margin-bottom: 2rem;
 }
 

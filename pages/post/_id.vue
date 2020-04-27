@@ -2,44 +2,42 @@
   <article class="post">
     <header class="post-header">
       <div class="post-title">
-        <h1>Post title</h1>
+        <h1>{{ post.title }}</h1>
         <nuxt-link to="/">
           <i class="el-icon-back"></i>
         </nuxt-link>
       </div>
       <div class="post-info">
         <small
-          ><i class="el-icon-time"></i>{{ new Date().toLocaleString() }}</small
+          ><i class="el-icon-time"></i
+          >{{ new Date(post.date).toLocaleString() }}</small
         >
         <small>
           <i class="el-icon-view"></i>
-          45
+          {{ post.views }}
         </small>
       </div>
       <div class="post-image">
-        <img src="" alt="" />
+        <img :src="post.imageUrl" alt="" />
       </div>
     </header>
     <main class="post-content">
-      <p>
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Blanditiis
-        dolorem dolorum, beatae veritatis quidem eveniet quisquam iusto! Labore
-        ullam laudantium et adipisci voluptatem minus fugiat, pariatur dolorem
-        eius. Velit, iure!
-      </p>
-      <p>
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Blanditiis
-        dolorem dolorum, beatae veritatis quidem eveniet quisquam iusto! Labore
-        ullam laudantium et adipisci voluptatem minus fugiat, pariatur dolorem
-        eius. Velit, iure!
-      </p>
+      <vue-markdown>{{ post.text }}</vue-markdown>
     </main>
     <footer>
       <!-- Form -->
-      <app-comment-form v-if="canAddComment" @created="createCommentHandler" />
+      <app-comment-form
+        v-if="canAddComment"
+        :post-id="post._id"
+        @created="createCommentHandler"
+      />
 
-      <div v-if="true" class="comments">
-        <app-comment v-for="comment in 4" :key="comment" :comment="comment" />
+      <div v-if="post.comments.length" class="comments">
+        <app-comment
+          v-for="comment in post.comments"
+          :key="comment._id"
+          :comment="comment"
+        />
       </div>
       <div v-else class="text-center">
         Комментариев нет
@@ -57,13 +55,21 @@ export default {
     return !!params.id
   },
   components: { AppComment, AppCommentForm },
+  async asyncData({ store, params }) {
+    const post = await store.dispatch('post/fetchById', params.id)
+    await store.dispatch('post/addView', post)
+    return {
+      post: { ...post, views: ++post.views }
+    }
+  },
   data() {
     return {
       canAddComment: true
     }
   },
   methods: {
-    createCommentHandler() {
+    createCommentHandler(comment) {
+      this.post.comments.unshift(comment)
       this.canAddComment = false
     }
   }
